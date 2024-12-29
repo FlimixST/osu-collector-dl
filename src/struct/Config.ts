@@ -6,6 +6,10 @@ import Util from "../util";
 import OcdlError from "./OcdlError";
 
 export default class Config {
+  // osu Mirror api url
+  osuMirrorApiUrl: string;
+  // osu Mirror alt api url
+  osuMirrorAltApiUrl: string;
   // Whether the download process should be done in parallel
   parallel: boolean;
   // The number of URLs that should be downloaded in parallel at once
@@ -41,6 +45,8 @@ export default class Config {
     }
 
     // Set default values for properties if not provided in 'config' object
+    this.osuMirrorApiUrl = typeof config.osuMirrorApiUrl === "string" ? config.osuMirrorApiUrl : "";
+    this.osuMirrorAltApiUrl = typeof config.osuMirrorAltApiUrl === "string" ? config.osuMirrorAltApiUrl : "";
     this.logSize = !isNaN(Number(config.logSize)) ? Number(config.logSize) : 15;
     this.parallel = Util.isBoolean(config.parallel)
       ? (config.parallel as boolean)
@@ -67,6 +73,8 @@ export default class Config {
       writeFileSync(
         Config.configFilePath,
         JSON.stringify({
+          osuMirrorApiUrl: "https://mirror.flimixst.dev/d/",
+          osuMirrorAltApiUrl: "https://osu.direct/api/d/",
           parallel: true,
           concurrency: 5,
           intervalCap: 50,

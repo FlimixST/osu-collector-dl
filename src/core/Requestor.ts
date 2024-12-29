@@ -4,6 +4,7 @@ import { Cursors, Json, Mode } from "../types";
 import OcdlError from "../struct/OcdlError";
 import { CollectionId } from "../struct/Collection";
 import { LIB_VERSION } from "../version";
+import Manager from "./Manager";
 
 interface FetchCollectionQuery {
   perPage?: number;
@@ -61,7 +62,7 @@ export interface v2ResBeatMapSetType extends Json {
   artist: string;
 }
 
-export class Requestor {
+export class Requestor extends Manager {
   static async fetchDownloadCollection(
     id: CollectionId,
     options: DownloadCollectionOptions = {
@@ -70,8 +71,8 @@ export class Requestor {
   ): Promise<Response> {
     const url =
       (options.alternative
-        ? Constant.OsuMirrorAltApiUrl
-        : Constant.OsuMirrorApiUrl) + id.toString();
+        ? Manager.config.osuMirrorAltApiUrl
+        : Manager.config.osuMirrorApiUrl) + id.toString();
 
     const fetchOptions = {
       headers: { "User-Agent": `osu-collector-dl/v${LIB_VERSION}` },

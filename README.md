@@ -4,7 +4,7 @@ A program that automates the scraping, download, and beatmap collection generati
 
 ## Installation
 
-1. Download the latest release from the [releases](https://github.com/roogue/osu-collector-dl/releases) page.
+1. Download the latest release from the [releases](https://github.com/FlimixST/osu-collector-dl/releases) page.
 2. Extract the compressed file
 
 ## Usage
@@ -26,6 +26,8 @@ Below is the data stored in the config.json.
 
 ```json
 {
+  "osuMirrorApiUrl": "https://mirror.flimixst.dev/d/",
+  "osuMirrorAltApiUrl": "https://osu.direct/api/d/",
   "parallel": true,
   "concurrency": 5,
   "intervalCap": 50,
@@ -36,6 +38,9 @@ Below is the data stored in the config.json.
 }
 ```
 ### Explaination
+> **osuMirrorApiUrl/osuMirrorAltApiUrl**
+> - Link to the best osu mirror api in your opinion
+
 > **parallel**
 > - `true` Download multiple beatmap sets at the same time.
 > - `false` Download only one beatmap set at a time.
@@ -51,7 +56,6 @@ Below is the data stored in the config.json.
 > **interval** (DO NOT CHANGE IF YOU ARE NOT SURE OF WHAT YOU ARE DOING)
 > - The countdown in seconds before the number of download requests reset.
 > - It is recommended to set this to a high number (such  as 60) to prevent abuse of the osu!mirror API and getting potential IP bans or rate limits.
-
 
 > **logSize**
 > - The maximum number of log messages during the download process.
@@ -90,10 +94,7 @@ Below is the data stored in the config.json.
 
 ### I have tried following the FAQ above, but it didn't solve my problem. The problem I am experiencing is not listed in the FAQ.
 
-> If you are experiencing a problem that is not covered in the FAQ and you need assistance, it is welcome to open an issue on the [Issue Page](https://github.com/roogue/osu-collector-dl/issues) or [Bug Report Form](https://forms.gle/KoHtcmsj94ahKFJy6). After navigating to the issue page, click the green "New issue" button on the page and follow the instructions to describe your problem in as much detail as possible. This will allow the maintainers of the project to better understand and help troubleshoot the issue you are experiencing.
-
-## Feedback
-It would be nice to hear feedback from you! [Feedback Form](https://forms.gle/bCZ25JVdQSKvgbWD9)
+> If you are experiencing a problem that is not covered in the FAQ and you need assistance, it is welcome to open an issue on the [Issue Page](https://github.com/FlimixST/osu-collector-dl/issues). After navigating to the issue page, click the green "New issue" button on the page and follow the instructions to describe your problem in as much detail as possible. This will allow the maintainers of the project to better understand and help troubleshoot the issue you are experiencing.
 
 ## License
 

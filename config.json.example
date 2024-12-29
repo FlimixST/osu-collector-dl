@@ -1,4 +1,6 @@
 {
+  "osuMirrorApiUrl": "https://mirror.flimixst.dev/d/",
+  "osuMirrorAltApiUrl": "https://osu.direct/api/d/",
   "parallel": true,
   "concurrency": 5,
   "intervalCap": 50,
