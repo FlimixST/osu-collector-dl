@@ -53,8 +53,11 @@ export enum Msg {
   DOWNLOADING_FILE = "Downloading [{{id}}] {{name}}",
   RETRYING_DOWNLOAD = "Retrying [{{id}}] {{name}}",
   DOWNLOADED_FILE = "Downloaded [{{id}}] {{name}}",
+  INDEXING_SONGS = "Indexing songs directory...",
+  INDEXING_PROGRESS = "Indexing songs directory... {{percentage}}%",
+  SKIPPED_FILE = "Skipped [{{id}}] {{name}} (already exists)",
   DOWNLOAD_FILE_FAILED = "Failed when downloading [{{id}}] {{name}}, due to error: {{error}}",
-  RATE_LIMITED = "Download request rate is limited, cooling down for one minute...",
+  RATE_LIMITED = "Rate limited, waiting 60 seconds...",
   DOWNLOAD_COMPLETED = "Download completed.",
 
   PROCESS_ERRORED = "An error occurred: {{error}}",

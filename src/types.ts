@@ -19,3 +19,14 @@ export enum ModeByte {
 export type WorkingMode = 1 | 2 | 3;
 
 export type Cursors = number[];
+
+export interface Condition {
+  retry_input: boolean;
+  retry_mode: boolean;
+  new_version: string | null;
+  fetched_collection: number;
+  downloaded_beatmapset: number;
+  download_log: string[];
+  indexed_songs: number;
+  total_songs: number;
+}

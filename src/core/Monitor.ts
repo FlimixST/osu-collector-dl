@@ -15,6 +15,8 @@ interface Condition {
   fetched_collection: number;
   downloaded_beatmapset: number;
   download_log: string[];
+  indexed_songs: number;
+  total_songs: number;
 }
 
 export enum DisplayTextColor {
@@ -45,6 +47,8 @@ export default class Monitor extends Manager {
       fetched_collection: 0,
       downloaded_beatmapset: 0,
       download_log: [],
+      indexed_songs: 0,
+      total_songs: 0
     };
 
     // Set terminal title according to it's version
@@ -96,10 +100,8 @@ export default class Monitor extends Manager {
 
     this.awaitInput(Msg.FREEZE, { action: isErrored ? "exit" : "continue" });
 
-    // End the whole process if it is errored
-    if (isErrored) {
-      process.exit(1);
-    }
+    // End the whole process if it is errored or not
+    process.exit(0);
   }
 
   displayMessage(

@@ -7,5 +7,7 @@
   "interval": 60,
   "logSize": 15,
   "directory": "",
-  "mode": 1
+  "mode": 1,
+  "songsDirectory": "C:/osu!/Songs",
+  "checkExistingSongs": true
 }

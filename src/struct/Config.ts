@@ -29,6 +29,8 @@ export default class Config {
   logSize: number;
   // The path to the config file
   static readonly configFilePath = "./config.json";
+  songsDirectory: string;
+  checkExistingSongs: boolean;
 
   // Constructs a new Config object from a string of JSON data
   // If no data is provided, default values are used
@@ -65,6 +67,8 @@ export default class Config {
       : 60;
     this.directory = this._getPath(config.directory);
     this.mode = this._getMode(config.mode);
+    this.songsDirectory = typeof config.songsDirectory === "string" ? config.songsDirectory : "";
+    this.checkExistingSongs = typeof config.checkExistingSongs === "boolean" ? config.checkExistingSongs : true;
   }
 
   // Generates a default config file if one does not already exist
@@ -82,6 +86,8 @@ export default class Config {
           logSize: 15,
           directory: "",
           mode: 1,
+          songsDirectory: "",
+          checkExistingSongs: true
         })
       );
     }

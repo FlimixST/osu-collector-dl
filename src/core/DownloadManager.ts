@@ -1,4 +1,4 @@
-import { createWriteStream, existsSync } from "fs";
+import { createWriteStream, existsSync, readdirSync, mkdirSync } from "fs";
 import { Response } from "undici";
 import _path from "path";
 import OcdlError from "../struct/OcdlError";
@@ -18,6 +18,8 @@ interface DownloadManagerEvents {
   rateLimited: () => void;
   // End is emitted along with un-downloaded beatmap
   end: (beatMapSet: BeatMapSet[]) => void;
+  indexing: (indexed: number, total: number) => void;
+  skipped: (beatMapSet: BeatMapSet) => void;
 }
 
 export declare interface DownloadManager extends Manager {
@@ -34,6 +36,10 @@ export declare interface DownloadManager extends Manager {
 
 export class DownloadManager extends EventEmitter implements DownloadManager {
   path: string;
+  private songsDirectory: string = "";
+  private existingBeatmaps: Map<string, boolean> = new Map();
+  private indexedSongs: number = 0;
+  private totalSongs: number = 0;
 
   // Queue for concurrency downloads
   private queue: PQueue;
@@ -56,11 +62,61 @@ export class DownloadManager extends EventEmitter implements DownloadManager {
     });
   }
 
+  private _indexSongsFolder(directory: string): void {
+    try {
+      const files = readdirSync(directory);
+      this.totalSongs = files.length;
+      
+      for (const file of files) {
+        // Extract beatmap ID from folder name (format: "123456 Artist - Title")
+        const match = file.match(/^(\d+)/);
+        if (match) {
+          this.existingBeatmaps.set(match[1], true);
+        }
+        this.indexedSongs++;
+        // Emit progress event
+        this.emit("indexing", this.indexedSongs, this.totalSongs);
+      }
+    } catch (error) {
+      console.error("Error indexing songs folder:", error);
+    }
+  }
+
+  private _isBeatmapExisting(beatmapId: number): boolean {
+    return this.existingBeatmaps.has(beatmapId.toString());
+  }
+
+  public setSongsDirectory(directory: string): void {
+    this.songsDirectory = directory;
+    this._indexSongsFolder(directory);
+  }
+
   // The primary method for downloading beatmaps
   public bulkDownload(): void {
+    let processedCount = 0;
+    const totalCount = Manager.collection.beatMapSets.size;
+    
     // Add every download task to queue
     Manager.collection.beatMapSets.forEach((beatMapSet) => {
-      void this.queue.add(async () => await this._downloadFile(beatMapSet));
+      // Skip if beatmap already exists
+      if (this._isBeatmapExisting(beatMapSet.id)) {
+        this.downloadedBeatMapSetSize++;
+        this.emit("skipped", beatMapSet);
+        processedCount++;
+        // If all maps are processed (skipped), emit end event
+        if (processedCount === totalCount) {
+          this.emit("end", this.notDownloadedBeatMapSet);
+        }
+        return;
+      }
+      void this.queue.add(async () => {
+        await this._downloadFile(beatMapSet);
+        processedCount++;
+        // If all maps are processed, emit end event
+        if (processedCount === totalCount) {
+          this.emit("end", this.notDownloadedBeatMapSet);
+        }
+      });
     });
 
     // Emit if the download has been done
@@ -94,7 +150,14 @@ export class DownloadManager extends EventEmitter implements DownloadManager {
       // Check if the specified directory exists
       // This is placed here to prevent crashes while user editing folder
       if (!this._checkIfDirectoryExists()) {
-        this.path = process.cwd();
+        this.path = _path.join(
+          Manager.config.directory,
+          Manager.collection.getReplacedName()
+        );
+        // Recreate directory if it was deleted
+        if (!existsSync(this.path)) {
+          mkdirSync(this.path);
+        }
       }
 
       const response = await Requestor.fetchDownloadCollection(beatMapSet.id, {
@@ -117,7 +180,9 @@ export class DownloadManager extends EventEmitter implements DownloadManager {
       }
 
       const fileName = this._getFilename(response);
-      const file = createWriteStream(_path.join(this.path, fileName));
+      const filePath = _path.join(this.path, fileName);
+      const file = createWriteStream(filePath);
+      
       if (response.body) {
         for await (const chunk of response.body) {
           file.write(chunk);
@@ -174,6 +239,6 @@ export class DownloadManager extends EventEmitter implements DownloadManager {
   }
 
   private _checkIfDirectoryExists(): boolean {
-    return existsSync(this.path);
+    return existsSync(this.path) && (!this.songsDirectory || existsSync(this.songsDirectory));
   }
 }

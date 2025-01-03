@@ -34,10 +34,21 @@ Below is the data stored in the config.json.
   "interval": 60,
   "logSize": 15,
   "directory": "",
-  "mode": 1
+  "mode": 1,
+  "songsDirectory": "C:/Users/YourUsername/AppData/Local/osu!/Songs",
+  "checkExistingSongs": true
 }
 ```
-### Explaination
+### Explanation
+> **songsDirectory**
+> - The path to your osu! Songs folder (e.g. "C:/Users/YourUsername/AppData/Local/osu!/Songs")
+> - If set, the program will check for existing beatmaps in this folder before downloading
+> - Leave empty if you don't want to check for existing songs
+
+> **checkExistingSongs**
+> - `true`: Enable checking for existing beatmaps before downloading
+> - `false`: Disable existing songs check, download all beatmaps
+
 > **osuMirrorApiUrl/osuMirrorAltApiUrl**
 > - Link to the best osu mirror api in your opinion
 

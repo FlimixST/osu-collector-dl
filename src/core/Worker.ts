@@ -14,6 +14,7 @@ import { LIB_VERSION } from "../version";
 
 export default class Worker extends Manager {
   monitor: Monitor;
+  private downloadManager?: DownloadManager;
 
   constructor() {
     super();
@@ -34,6 +35,25 @@ export default class Worker extends Manager {
     const newVersion = await Util.checkNewVersion(LIB_VERSION);
     if (newVersion) {
       this.monitor.setCondition({ new_version: newVersion });
+    }
+
+    // Index songs if enabled
+    if (Manager.config.checkExistingSongs && Manager.config.songsDirectory) {
+      const downloadManager = new DownloadManager();
+      downloadManager
+        .on("indexing", (indexed, total) => {
+          const percentage = Math.floor((indexed / total) * 100);
+          this.monitor.setCondition({
+            indexed_songs: indexed,
+            total_songs: total
+          });
+          process.stdout.write(`\rIndexing songs directory... ${percentage}%`);
+          if (indexed === total) {
+            process.stdout.write("\n");
+          }
+        });
+      downloadManager.setSongsDirectory(Manager.config.songsDirectory);
+      this.downloadManager = downloadManager;
     }
 
     let id: number | null = null;
@@ -219,9 +239,35 @@ export default class Worker extends Manager {
     this.monitor.nextTask();
 
     try {
-      const downloadManager = new DownloadManager();
+      // Create new download manager if not already created during indexing
+      if (!this.downloadManager) {
+        this.downloadManager = new DownloadManager();
+        if (Manager.config.songsDirectory && Manager.config.checkExistingSongs) {
+          this.downloadManager.setSongsDirectory(Manager.config.songsDirectory);
+        }
+      }
+      
+      const downloadManager = this.downloadManager;
       // Listen to current download state and log into console
       downloadManager
+        .on("indexing", (indexed, total) => {
+          this.monitor.setCondition({
+            indexed_songs: indexed,
+            total_songs: total
+          });
+          this.monitor.update();
+        })
+        .on("skipped", (beatMapSet) => {
+          this.monitor.appendDownloadLog(
+            Msg.SKIPPED_FILE,
+            {
+              id: beatMapSet.id.toString(),
+              name: beatMapSet.title ?? "",
+            },
+            DisplayTextColor.SECONDARY
+          );
+          this.monitor.update();
+        })
         .on("downloading", (beatMapSet) => {
           this.monitor.appendDownloadLog(
             Msg.DOWNLOADING_FILE,
@@ -287,7 +333,6 @@ export default class Worker extends Manager {
             },
             DisplayTextColor.DANGER
           );
-
           this.monitor.update();
         });
 
